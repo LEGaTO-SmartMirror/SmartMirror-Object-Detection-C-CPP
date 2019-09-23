@@ -1,0 +1,6 @@
+#ignore pyc...
+*.pyc
+
+build/*
+*.bak
+camera_publisher/imgui.ini
