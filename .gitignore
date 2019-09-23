@@ -1,6 +1,5 @@
 #ignore pyc...
 *.pyc
 
-build/*
+object-detection/build/*
 *.bak
-camera_publisher/imgui.ini
