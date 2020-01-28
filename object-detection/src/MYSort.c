@@ -102,7 +102,9 @@ static void removeTracker(size_t index, size_t removeIndex){
 	
 }
 
-void updateTrackers(detection* dets, int nboxes, float thresh){
+ 
+
+void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** return_dets, int* return_nboxes ){
 	
 	size_t i = 0;
 	size_t j = 0;
@@ -123,8 +125,10 @@ void updateTrackers(detection* dets, int nboxes, float thresh){
 	size_t actual_type = 0;
 	size_t trkNum = 0;
 	size_t detNum = 0;
+	returned_object_amount = 0;
 	
 	for(actual_type=0; actual_type<tracker_types; ++actual_type){	
+
 		trkNum = tracker_amount[actual_type];
 		detNum = dets_sorted_number[actual_type];
 			
@@ -226,21 +230,29 @@ void updateTrackers(detection* dets, int nboxes, float thresh){
 		}
 		
 		if (tracker_amount[actual_type] > 0){
-			printf("type = %li\n" ,actual_type);
-			for (i = 0; i < tracker_amount[actual_type]; ++i){
-				box b = MyKalmanGet_state(trackers[actual_type][i]);
-				int m_hint = MyKalmanGETm_hits(trackers[actual_type][i]);
+			//printf("type = %li\n" ,actual_type);
+			for (i = 0; i < tracker_amount[actual_type]; ++i){		
 				int m_hint_steak = MyKalmanGETm_hit_streak(trackers[actual_type][i]);
 				int age = MyKalmanGETm_age(trackers[actual_type][i]);
 				int id = MyKalmanGETm_id(trackers[actual_type][i]);
 				if((age > 10) || (m_hint_steak > 5)){
-					printf("id = %i, x = %f , y = %f , w = %f , h= %f, m_hint = %i, m_hit_streak = %i, age = %i \n", id, b.x, b.y, b.w, b.h, m_hint, m_hint_steak, age );
+					box b = MyKalmanGet_state(trackers[actual_type][i]);
+					TrackedObject new_obj;
+					new_obj.bbox.x = b.x;
+					new_obj.bbox.y = b.y;
+					new_obj.bbox.w = b.w;
+					new_obj.bbox.h = b.h;
+					new_obj.objectTyp = actual_type;
+					new_obj.trackerID = id;
+					addDetToReturnArray(new_obj);
+					*return_nboxes +=1;
 				}
 			}
-			printf("\n");
-		}
+		} 
 	
 	} // end type loop
+
+	*return_dets = returned_object;
 	
 	//printf("-------------------------------------------------------- \n");
 	
@@ -257,21 +269,40 @@ static void addDetToArray(size_t index, detection* det){
 	
 	int i = 0;
 	
-	detection** new_tracker = (detection**) malloc(sizeof(detection*) * dets_sorted_number[index] + 1);
+	detection** new_detections = (detection**) malloc(sizeof(detection*) * (dets_sorted_number[index] + 1));
 			
 	if (dets_sorted_number[index] > 0){
 		for(i = 0; i < dets_sorted_number[index]; ++i){
-			new_tracker[i] = dets_sorted[index][i];
+			new_detections[i] = dets_sorted[index][i];
 		}
 		free(dets_sorted[index]);		
 	}
 	
-	new_tracker[dets_sorted_number[index]] = det;
+	new_detections[dets_sorted_number[index]] = det;
 	
-	dets_sorted[index] = new_tracker;
+	dets_sorted[index] = new_detections;
 	
 	dets_sorted_number[index] += 1;
 			
+}
+
+static void addDetToReturnArray(TrackedObject det){
+
+	int i = 0;
+	TrackedObject* new_detections = (TrackedObject*) malloc(sizeof(TrackedObject) * (returned_object_amount + 1));
+
+	if (returned_object_amount > 0){
+		for(i = 0; i < returned_object_amount; ++i){
+			new_detections[i] = returned_object[i];
+		}
+		free(returned_object);		
+	}
+	
+	new_detections[returned_object_amount] = det;
+
+	returned_object = new_detections;
+	returned_object_amount += 1;
+				
 }
 
 static int valueinarray(int val, int arr[], size_t n){

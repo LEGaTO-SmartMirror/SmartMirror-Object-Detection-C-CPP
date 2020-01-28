@@ -21,6 +21,15 @@ static double TrackerIOUsimThreshhold = 0.8;
 static detection*** dets_sorted;
 static size_t* dets_sorted_number;
 
+typedef struct TrackedObject{
+    box bbox;
+    int objectTyp;
+    size_t trackerID;
+} TrackedObject;
+
+static TrackedObject* returned_object;
+static size_t returned_object_amount;
+
 // get the prediction of each tracker of each type to this.
 // detection[tracker_types][tracker_amount[tracker_types]]
 static box** dets_predictions;
@@ -33,10 +42,11 @@ static box** dets_predictions;
 void init_trackers(size_t max_index);
 
 // public 
-void updateTrackers(detection* dets, int nboxes, float thresh);
+void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** return_dets, int* return_nboxes );
 
 //internal functions for compuational splitting
 static void addDetToArray(size_t index, detection* det);
+static void addDetToReturnArray(TrackedObject det);
 static void extentTrackers(size_t index, box inital_rect);
 static void removeTracker(size_t index, size_t removeIndex);
 static int valueinarray(int val, int arr[], size_t n);
