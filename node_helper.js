@@ -22,6 +22,8 @@ module.exports = NodeHelper.create({
 				}else if (parsed_message.hasOwnProperty('OBJECT_DET_FPS')){
 					//console.log("[" + self.name + "] object detection fps: " + JSON.stringify(parsed_message));
 					self.sendSocketNotification('OBJECT_DET_FPS', parsed_message.OBJECT_DET_FPS);
+				}else if (parsed_message.hasOwnProperty('STATUS')){
+					console.log("[" + self.name + "] status received: " + JSON.stringify(parsed_message));
 				}
 			}
 			catch(err) {
@@ -39,6 +41,8 @@ module.exports = NodeHelper.create({
 			if(cAppStarted) {
                 		var data = {"FPS": payload}
                 		//self.obj_pyshell.send(JSON.stringify(data));
+				self.objectDet.stdin.write(payload.toString() + "\n");
+				console.log("[" + self.name + "] changing to: " + payload.toString() + " FPS");
 
          		}
        	 	}else if(notification === 'OBJECT_DETECITON_CONFIG') {

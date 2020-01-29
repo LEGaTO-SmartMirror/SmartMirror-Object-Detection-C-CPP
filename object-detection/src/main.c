@@ -38,7 +38,7 @@ static int mjpeg_port 		= -1;
 static int classes 		= 80;
 char **names 			= NULL;
 
-static double maxFPS = 30.;
+static double maxFPS = 1.;
 static int framecounter = 0;
 static double framecounteracc = 0.0; 
 
@@ -116,6 +116,15 @@ int main(int argc, char *argv[]) {
 	
 	//pthread_t fetch_thread;
 	//pthread_t detect_thread;
+
+	fd_set readfds;
+    	FD_ZERO(&readfds);
+
+    	struct timeval timeout;
+    	timeout.tv_sec = 0;
+    	timeout.tv_usec = 0;
+
+    	char message[50];
 	 	
 	 	
 	init_trackers(classes);
@@ -123,9 +132,18 @@ int main(int argc, char *argv[]) {
 	//create_window_cv("Demo", 0, 1280, 720);
 	
 	double before = get_time_point();
-	 
+
+ 
 	while (1){
-		
+
+			
+		FD_SET(STDIN_FILENO, &readfds);
+
+        	if (select(1, &readfds, NULL, NULL, &timeout))
+        	{
+          	  	scanf("%s", message);
+			maxFPS = atof(message);
+       		 }
 	
 		det_s = in_s;
 		local_dets = dets;
