@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.5.1)
 # Project name.
 set(PROJ_NAME object_detection)
 # Path to Darknet project folder.
-set(DARKNET_PATH $ENV{DARKNET_HOME})
+set(DARKNET_PATH "/opt/dev/dependencies/darknet/")
 # Give a custom name to shared library which is provided by Darkned when the one compiled.
 set(DARKNET_LIB_NAME libdarknet)
 # Define C++ level, could be 11 or 17 as well.
