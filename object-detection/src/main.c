@@ -10,6 +10,8 @@
 
 #include "MYSort.h"
 
+
+
 static char **demo_names;
 static image **demo_alphabet;
 static int demo_classes;
@@ -67,7 +69,20 @@ void* get_results(void *ptr){
 	free_image(det_s);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+
+	if(argc > 1){
+		chdir(argv[1]);
+	}
+
+	char cwd[100];
+	getcwd(cwd,sizeof(cwd));
+	printf("Current working dir: %s\n", cwd);
+
+	char result[ 100 ];
+	readlink( "/proc/self/exe", result, sizeof(result)-1);
+	printf("readlink dir: %s\n", result);
+
 	
 	// Path to configuration file.
     static char *cfg_file = "../data/yolov3.cfg";
@@ -144,12 +159,12 @@ int main() {
 		
 		if (tracked_nboxes > 0){
 			char itemstring[200];
-			printf("{\"TrackID\": %li, \"name\": %s, \"center\": [%f,%f], \"w_h\": [%f,%f]}", tracked_dets[0].trackerID, names[tracked_dets[0].objectTyp], tracked_dets[0].bbox.x, tracked_dets[0].bbox.y , tracked_dets[0].bbox.h , tracked_dets[0].bbox.w);
+			printf("{\"TrackID\": %li, \"name\": \"%s\", \"center\": [%.5f,%.5f], \"w_h\": [%.5f,%.5f]}", tracked_dets[0].trackerID, names[tracked_dets[0].objectTyp], tracked_dets[0].bbox.x, tracked_dets[0].bbox.y , tracked_dets[0].bbox.h , tracked_dets[0].bbox.w);
 			
 			int i=1;
 			
 			for(i=1;i<tracked_nboxes;i++){
-				printf(", {\"TrackID\": %li, \"name\": %s, \"center\": [%f,%f], \"w_h\": [%f,%f]}", tracked_dets[i].trackerID, names[tracked_dets[i].objectTyp], tracked_dets[i].bbox.x, tracked_dets[i].bbox.y , tracked_dets[i].bbox.h , tracked_dets[i].bbox.w);
+				printf(", {\"TrackID\": %li, \"name\": \"%s\", \"center\": [%.5f,%.5f], \"w_h\": [%.5f,%.5f]}", tracked_dets[i].trackerID, names[tracked_dets[i].objectTyp], tracked_dets[i].bbox.x, tracked_dets[i].bbox.y , tracked_dets[i].bbox.h , tracked_dets[i].bbox.w);
 				
 			}
 
@@ -159,6 +174,7 @@ int main() {
 		}
 		
 		printf("]}\n");
+		fflush(stdout);
 			
 		free_detections(local_dets, local_nboxes);
 
@@ -178,7 +194,8 @@ int main() {
 
 		if (framecounter > maxFPS){
 
-			printf("{\"OBJECT_DET_FPS\": %.1f}\n", (framecounteracc / framecounter));
+			printf("{\"OBJECT_DET_FPS\": %.2f}\n", (framecounteracc / framecounter));
+			fflush(stdout);
 			framecounteracc = 0.0;
 			framecounter = 0;
 
