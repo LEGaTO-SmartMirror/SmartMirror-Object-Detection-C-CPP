@@ -175,6 +175,8 @@ int main(int argc, char *argv[]) {
 		
 		
 		release_mat(&in_img);
+
+		fflush(stdout);
 		
 		printf("{\"DETECTED_OBJECTS\": [");
 		

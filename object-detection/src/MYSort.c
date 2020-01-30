@@ -135,12 +135,12 @@ void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** r
 		// if no tracker or detection is present.. nothing needs to be done		
 		if (trkNum == 0 && detNum == 0)
 			continue;
-				
+		
+
 		//--------------------------------------------------------
 		// get predictions of each tracker
 		for (i = 0; i <tracker_amount[actual_type]; ++i) {
 			dets_predictions[actual_type][i] = MyKalmanPredict(trackers[actual_type][i]);
-			
 			// remove nan value
 			if(isnan(dets_predictions[actual_type][i].x))
 				dets_predictions[actual_type][i].x = 0.0;
@@ -152,7 +152,6 @@ void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** r
 				dets_predictions[actual_type][i].w = 0.0;
 				
 		}	
-		
 		//--------------------------------------------------------
 		// combine tracker with a high iou
 		// therefore remove the last tracker because it should be younger
@@ -174,17 +173,18 @@ void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** r
 		//------------------------
 		// calculate iou in matrix tracker x detection
 	
-		float** iouMatrix = (float **) malloc(trkNum * sizeof(float *));
+		float** distMatrix = (float **) malloc(trkNum * sizeof(float *));
 		
 		for (i = 0; i <trkNum; ++i) {
-			iouMatrix[i] = (float *) malloc(detNum * sizeof(float));
+			distMatrix[i] = (float *) malloc(detNum * sizeof(float));
+
 			
 			for (j = 0; j < detNum; ++j) {
-				iouMatrix[i][j] = calculateIOU(dets_predictions[actual_type][i],dets_sorted[actual_type][j]->bbox,image_width, image_height);
+				distMatrix[i][j] = 1 - calculateIOU(dets_predictions[actual_type][i],dets_sorted[actual_type][j]->bbox,image_width, image_height);
 				
 				// if the iou is too low it should not be considered
-				if(iouMatrix[i][j] < iouThreshold)
-					iouMatrix[i][j] = 0.0;
+				if(distMatrix[i][j] < iouThreshold)
+					distMatrix[i][j] = 0.0;
 			}
 		}	
 
@@ -192,8 +192,8 @@ void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** r
 		// Hungerian filter for assignment
 				
 		int* assignment = (int *) malloc(trkNum * sizeof(int));;
-		float cost = Solve(trkNum, detNum, iouMatrix, assignment);
-		
+		float cost = Solve(trkNum, detNum, distMatrix, assignment);
+				
 		//--------------------------------------------------------
 		// update Tracker 
 		
@@ -212,9 +212,9 @@ void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** r
 		// free everything allocated..
 				
 		for (i = 0; i <trkNum; ++i)
-			free(iouMatrix[i]);
+			free(distMatrix[i]);
 			
-		free(iouMatrix);
+		free(distMatrix);
 		free(assignment);
 				
 		//------------------------

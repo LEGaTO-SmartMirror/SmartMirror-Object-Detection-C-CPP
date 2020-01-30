@@ -1,16 +1,13 @@
 'use strict';
 const NodeHelper = require('node_helper');
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
 
-const {PythonShell} = require('python-shell');
 var cAppStarted = false
 
 module.exports = NodeHelper.create({
 
 	cApp_start: function () {
 		const self = this;
-		console.log('starting c object detection');
-		console.log('modules/' + this.name + '/object-detection/build/object_detection');
 		self.objectDet = spawn('modules/' + this.name + '/object-detection/build/object_detection',['modules/' + this.name + '/object-detection/build', self.config.image_width, self.config.image_height]);
 		self.objectDet.stdout.on('data', (data) => {
 			try{
@@ -32,6 +29,12 @@ module.exports = NodeHelper.create({
 			}
   			//console.log(`stdout: ${data}`);
 		});	
+		exec(`renice -n 20 -p ${self.objectDet.pid}`,(error,stdout,stderr) => {
+				if (error) {
+					console.error(`exec error: ${error}`);
+  				}
+			});
+
   	},
 
   	// Subclass socketNotificationReceived received.
@@ -39,8 +42,7 @@ module.exports = NodeHelper.create({
 		const self = this;	
 		if(notification === 'ObjectDetection_SetFPS') {
 			if(cAppStarted) {
-                		var data = {"FPS": payload}
-                		//self.obj_pyshell.send(JSON.stringify(data));
+                var data = {"FPS": payload}
 				self.objectDet.stdin.write(payload.toString() + "\n");
 				console.log("[" + self.name + "] changing to: " + payload.toString() + " FPS");
 
