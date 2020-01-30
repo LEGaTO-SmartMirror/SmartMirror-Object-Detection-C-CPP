@@ -42,7 +42,7 @@ static box** dets_predictions;
 void init_trackers(size_t max_index);
 
 // public 
-void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** return_dets, int* return_nboxes );
+void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** return_dets, int* return_nboxes, size_t image_width, size_t image_height);
 
 //internal functions for compuational splitting
 static void addDetToArray(size_t index, detection* det);
@@ -50,7 +50,7 @@ static void addDetToReturnArray(TrackedObject det);
 static void extentTrackers(size_t index, box inital_rect);
 static void removeTracker(size_t index, size_t removeIndex);
 static int valueinarray(int val, int arr[], size_t n);
-static float calculateIOU(box a, box b);
+static float calculateIOU(box a, box b, size_t image_width, size_t image_height);
 
 
 #endif

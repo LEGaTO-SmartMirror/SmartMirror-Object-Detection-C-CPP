@@ -11,7 +11,7 @@ module.exports = NodeHelper.create({
 		const self = this;
 		console.log('starting c object detection');
 		console.log('modules/' + this.name + '/object-detection/build/object_detection');
-		self.objectDet = spawn('modules/' + this.name + '/object-detection/build/object_detection',['modules/' + this.name + '/object-detection/build']);
+		self.objectDet = spawn('modules/' + this.name + '/object-detection/build/object_detection',['modules/' + this.name + '/object-detection/build', self.config.image_width, self.config.image_height]);
 		self.objectDet.stdout.on('data', (data) => {
 			try{
 				var parsed_message = JSON.parse(`${data}`)
@@ -46,7 +46,7 @@ module.exports = NodeHelper.create({
 
          		}
        	 	}else if(notification === 'OBJECT_DETECITON_CONFIG') {
-      			this.config = payload
+      			self.config = payload
       			if(!cAppStarted) {
         			cAppStarted = true;
         			this.cApp_start();

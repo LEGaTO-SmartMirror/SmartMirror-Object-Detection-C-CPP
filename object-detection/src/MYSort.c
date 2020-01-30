@@ -104,7 +104,7 @@ static void removeTracker(size_t index, size_t removeIndex){
 
  
 
-void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** return_dets, int* return_nboxes ){
+void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** return_dets, int* return_nboxes, size_t image_width,size_t image_height  ){
 	
 	size_t i = 0;
 	size_t j = 0;
@@ -159,7 +159,7 @@ void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** r
 		
 		for (i = trkNum; i > 1; --i){
 			for (j = i-1; j > 0; --j){
-				float iou_tmp = calculateIOU(dets_predictions[actual_type][i-1],dets_predictions[actual_type][j-1]);
+				float iou_tmp = calculateIOU(dets_predictions[actual_type][i-1],dets_predictions[actual_type][j-1],image_width, image_height);
 				if (iou_tmp > TrackerIOUsimThreshhold){
 						removeTracker(actual_type,i-1);
 				}
@@ -180,7 +180,7 @@ void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** r
 			iouMatrix[i] = (float *) malloc(detNum * sizeof(float));
 			
 			for (j = 0; j < detNum; ++j) {
-				iouMatrix[i][j] = calculateIOU(dets_predictions[actual_type][i],dets_sorted[actual_type][j]->bbox);
+				iouMatrix[i][j] = calculateIOU(dets_predictions[actual_type][i],dets_sorted[actual_type][j]->bbox,image_width, image_height);
 				
 				// if the iou is too low it should not be considered
 				if(iouMatrix[i][j] < iouThreshold)
@@ -316,9 +316,7 @@ static int valueinarray(int val, int arr[], size_t n){
     return -1;
 }
 
-static float calculateIOU(box a, box b){
-	int image_width = 1920;
-	int image_height = 1080;
+static float calculateIOU(box a, box b,size_t image_width,size_t image_height){
 	
 	float a_ab_x = a.x * image_width;
 	float a_ab_y = a.y * image_height;

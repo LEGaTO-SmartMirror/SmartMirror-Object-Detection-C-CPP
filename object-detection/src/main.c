@@ -10,11 +10,8 @@
 
 #include "MYSort.h"
 
-
-
-static char **demo_names;
-static image **demo_alphabet;
-static int demo_classes;
+static int image_width = 416;
+static int image_height = 416;
 
 static int nboxes = 0;
 static int local_nboxes = 0;
@@ -30,11 +27,7 @@ static image det_s;
 static cap_cv *cap;
 static float fps 		= 0;
 static float thresh 		= .6;
-static int ext_output 		= 0;
-static int json_port 		= -1;
-static char *prefix 		= 0;
 static float hier_thresh 	= .5;
-static int mjpeg_port 		= -1;
 static int classes 		= 80;
 char **names 			= NULL;
 
@@ -53,8 +46,10 @@ static mat_cv* in_img;
 static volatile int flag_exit = 0;
 static int letter_box = 0;
 
+
+
 void* fetch_image(void *ptr){
-	in_s = get_image_from_stream_resize(cap, 416, 416, 3, &in_img, 0);	
+	in_s = get_image_from_stream_resize(cap, net->w, net->h, 3, &in_img, 0);	
 }
 
 void* get_results(void *ptr){
@@ -73,6 +68,11 @@ int main(int argc, char *argv[]) {
 
 	if(argc > 1){
 		chdir(argv[1]);
+	}
+
+	if(argc > 3){
+		image_width = atoi(argv[2]);
+		image_height = atoi(argv[3]);
 	}
 
 	char cwd[100];
@@ -105,14 +105,17 @@ int main(int argc, char *argv[]) {
     calculate_binary_weights(*net);
     srand(2222222); 
     
-	
-	cap = get_capture_video_stream("shmsrc socket-path=/dev/shm/camera_small ! video/x-raw, format=BGR, width=416, height=416, framerate=30/1 ! videoconvert ! video/x-raw, format=BGR ! appsink drop=true");
+	char cap_str[200];
+
+	sprintf(cap_str, "shmsrc socket-path=/dev/shm/camera_small ! video/x-raw, format=BGR, width=%i, height=%i, framerate=30/1 ! videoconvert ! video/x-raw, format=BGR ! appsink drop=true",image_width,image_height);
+
+	cap = get_capture_video_stream(cap_str);
 	
 		if (!cap) {
 			error("Couldn't connect to webcam.\n");
 		}
 	
-	in_s = get_image_from_stream_resize(cap, 416, 416, 3, &in_img, 0);	
+	in_s = get_image_from_stream_resize(cap, net->w, net->h, 3, &in_img, 0);	
 	
 	//pthread_t fetch_thread;
 	//pthread_t detect_thread;
@@ -149,7 +152,6 @@ int main(int argc, char *argv[]) {
 		local_dets = dets;
 		local_nboxes = nboxes;
 
-		//in_s = get_image_from_stream_resize(cap, 416, 416, 3, &in_img, 0);
 
 		fetch_image(0);
 		get_results(0);
@@ -160,7 +162,7 @@ int main(int argc, char *argv[]) {
 		//const char *CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
 		//write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
 		
-		updateTrackers(local_dets, local_nboxes, thresh, &tracked_dets, &tracked_nboxes);	
+		updateTrackers(local_dets, local_nboxes, thresh, &tracked_dets, &tracked_nboxes,image_width, image_height);	
 		
 		//char* det_json = detection_to_json(dets, num_boxes, classes, names, 0 , "");
 		//printf(det_json);
@@ -177,12 +179,12 @@ int main(int argc, char *argv[]) {
 		
 		if (tracked_nboxes > 0){
 			char itemstring[200];
-			printf("{\"TrackID\": %li, \"name\": \"%s\", \"center\": [%.5f,%.5f], \"w_h\": [%.5f,%.5f]}", tracked_dets[0].trackerID, names[tracked_dets[0].objectTyp], tracked_dets[0].bbox.x, tracked_dets[0].bbox.y , tracked_dets[0].bbox.h , tracked_dets[0].bbox.w);
+			printf("{\"TrackID\": %li, \"name\": \"%s\", \"center\": [%.5f,%.5f], \"w_h\": [%.5f,%.5f]}", tracked_dets[0].trackerID, names[tracked_dets[0].objectTyp], tracked_dets[0].bbox.x, tracked_dets[0].bbox.y , tracked_dets[0].bbox.w , tracked_dets[0].bbox.h);
 			
 			int i=1;
 			
 			for(i=1;i<tracked_nboxes;i++){
-				printf(", {\"TrackID\": %li, \"name\": \"%s\", \"center\": [%.5f,%.5f], \"w_h\": [%.5f,%.5f]}", tracked_dets[i].trackerID, names[tracked_dets[i].objectTyp], tracked_dets[i].bbox.x, tracked_dets[i].bbox.y , tracked_dets[i].bbox.h , tracked_dets[i].bbox.w);
+				printf(", {\"TrackID\": %li, \"name\": \"%s\", \"center\": [%.5f,%.5f], \"w_h\": [%.5f,%.5f]}", tracked_dets[i].trackerID, names[tracked_dets[i].objectTyp], tracked_dets[i].bbox.x, tracked_dets[i].bbox.y , tracked_dets[i].bbox.w , tracked_dets[i].bbox.h);
 				
 			}
 
