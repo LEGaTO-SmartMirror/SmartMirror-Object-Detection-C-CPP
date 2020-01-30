@@ -7,6 +7,7 @@
 #include "option_list.h"
 #include "parser.h"
 #include <unistd.h>
+#include <time.h>
 
 #include "MYSort.h"
 
@@ -202,8 +203,10 @@ int main(int argc, char *argv[]) {
 		double after = get_time_point();    // more accurate time measurements
 		double curr = 1000000. / (after - before);
 		if (maxFPS < curr){
-			double sleepingTime = (1.0/maxFPS)-(1.0/curr);
-			sleep( sleepingTime);
+			double sleepingTime = (1.0/maxFPS)*1000-(1.0/curr)*1000;
+			usleep(sleepingTime * 1000);
+			//printf("{\"STATUS\": \"need to sleep for %.5f\"}\n", sleepingTime);
+			fflush(stdout);
 			curr = maxFPS;
 			after = get_time_point();
 		}
