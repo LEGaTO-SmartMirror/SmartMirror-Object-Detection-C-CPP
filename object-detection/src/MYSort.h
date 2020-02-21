@@ -13,8 +13,8 @@ static size_t tracker_types;
 static size_t* tracker_amount;
 
 static size_t max_age = 10;
-static float iouThreshold = 0.3;
-static float TrackerIOUsimThreshhold = 0.7;
+static float iouThreshold = 0.2;
+static float TrackerIOUsimThreshhold = 0.6;
 
 // for an efficent tracking all detecitons needs to be sorted for object types.
 // detection[tracker_types][dets_sorted_number[tracker_types]]
