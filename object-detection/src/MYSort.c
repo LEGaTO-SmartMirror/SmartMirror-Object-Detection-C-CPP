@@ -200,7 +200,7 @@ void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** r
 		for (i=0; i < detNum; ++i){
 			int index = valueinarray(i,assignment,trkNum);
 			
-			if (index > -1){
+			if ((index > -1) && distMatrix[index][i] < distThreshold){
 				MyKalmanUpdate(trackers[actual_type][index],dets_sorted[actual_type][i]->bbox);
 			}
 			else {  // there are unmatched detections
