@@ -183,7 +183,7 @@ void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** r
 				distMatrix[i][j] = 1 - calculateIOU(dets_predictions[actual_type][i],dets_sorted[actual_type][j]->bbox,image_width, image_height);
 				
 				// if the iou is too low it should not be considered
-				if(distMatrix[i][j] < distThreshold)
+				if(distMatrix[i][j] > distThreshold)
 					distMatrix[i][j] = 1.0;
 			}
 		}	
