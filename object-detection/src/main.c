@@ -27,7 +27,7 @@ static image det_s;
 
 static cap_cv *cap;
 static float fps 		= 0;
-static float thresh 		= .6;
+static float thresh 		= .7;
 static float hier_thresh 	= .5;
 static int classes 		= 80;
 char **names 			= NULL;
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
 	 	
 	init_trackers(classes);
 		
-	//create_window_cv("Demo", 0, 1280, 720);
+	create_window_cv("Demo", 0, 1280, 720);
 	
 	double before = get_time_point();
 
@@ -173,10 +173,10 @@ int main(int argc, char *argv[]) {
 		//char* det_json = detection_to_json(dets, num_boxes, classes, names, 0 , "");
 		//printf(det_json);
 		
-		draw_detections_cv_v3(in_img, local_dets, local_nboxes, thresh, names, NULL, classes, 0);
-		//show_image_mat(in_img, "Demo");	
+		//draw_detections_cv_v3(in_img, local_dets, local_nboxes, thresh, names, NULL, classes, 0);
+		show_image_mat(in_img, "Demo");	
 		int c = wait_key_cv(1);
-		//if (c == 27 || c == 1048603) flag_exit = 1;
+		if (c == 27 || c == 1048603) flag_exit = 1;
 		
 		
 		release_mat(&in_img);

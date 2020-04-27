@@ -235,7 +235,7 @@ void updateTrackers(detection* dets, int nboxes, float thresh, TrackedObject** r
 				int m_hint_steak = MyKalmanGETm_hit_streak(trackers[actual_type][i]);
 				int age = MyKalmanGETm_age(trackers[actual_type][i]);
 				int id = MyKalmanGETm_id(trackers[actual_type][i]);
-				if((age > 10) || (m_hint_steak > 5)){
+				if((age > 5) || (m_hint_steak > 3)){
 					box b = MyKalmanGet_state(trackers[actual_type][i]);
 					TrackedObject new_obj;
 					new_obj.bbox.x = b.x;
