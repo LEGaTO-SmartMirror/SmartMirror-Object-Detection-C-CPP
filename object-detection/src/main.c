@@ -32,7 +32,7 @@ static float hier_thresh 	= .5;
 static int classes 		= 80;
 char **names 			= NULL;
 
-static double maxFPS = 1.;
+static double maxFPS = 5.;
 static int framecounter = 0;
 static double framecounteracc = 0.0; 
 
@@ -148,6 +148,11 @@ int main(int argc, char *argv[]) {
           	  	scanf("%s", message);
 			maxFPS = atof(message);
        		 }
+
+		if (maxFPS == 0) {
+			usleep(1 * 1000);
+			continue;
+		}
 	
 		det_s = in_s;
 		local_dets = dets;
@@ -168,9 +173,9 @@ int main(int argc, char *argv[]) {
 		//char* det_json = detection_to_json(dets, num_boxes, classes, names, 0 , "");
 		//printf(det_json);
 		
-		//draw_detections_cv_v3(in_img, local_dets, local_nboxes, thresh, names, NULL, classes, 0);
+		draw_detections_cv_v3(in_img, local_dets, local_nboxes, thresh, names, NULL, classes, 0);
 		//show_image_mat(in_img, "Demo");	
-		//int c = wait_key_cv(1);
+		int c = wait_key_cv(1);
 		//if (c == 27 || c == 1048603) flag_exit = 1;
 		
 		

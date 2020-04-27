@@ -42,7 +42,6 @@ module.exports = NodeHelper.create({
 		const self = this;	
 		if(notification === 'ObjectDetection_SetFPS') {
 			if(cAppStarted) {
-                var data = {"FPS": payload}
 				self.objectDet.stdin.write(payload.toString() + "\n");
 				console.log("[" + self.name + "] changing to: " + payload.toString() + " FPS");
 
