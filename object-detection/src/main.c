@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
         
 	initialize_network(cfg_file ,weight_file );
 
-    char cap_str[200];
+	char cap_str[200];
 
 	sprintf(cap_str, "shmsrc socket-path=/dev/shm/camera_small ! video/x-raw, format=BGR, width=%i, height=%i, framerate=30/1 ! videoconvert ! video/x-raw, format=BGR ! appsink drop=true",image_width,image_height);
 
