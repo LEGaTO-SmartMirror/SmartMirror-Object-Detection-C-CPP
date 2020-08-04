@@ -12,9 +12,9 @@ static struct KalmanTracker*** trackers;
 static size_t tracker_types;
 static size_t* tracker_amount;
 
-static size_t max_age = 10;
-static float distThreshold = 0.8;
-static float TrackerIOUsimThreshhold = 0.6;
+static size_t max_age = 5;
+static float distThreshold = 0.95;
+static float TrackerIOUsimThreshhold = 0.8;
 
 // for an efficent tracking all detecitons needs to be sorted for object types.
 // detection[tracker_types][dets_sorted_number[tracker_types]]
